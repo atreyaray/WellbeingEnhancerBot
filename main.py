@@ -59,7 +59,7 @@ def start_over(update, context):
 def one(update, context):
     """Show new choice of buttons"""
     query = update.callback_query
-    query.answer()
+    # query.answer()
     keyboard = [
         [InlineKeyboardButton("3", callback_data=str(THREE)),
          InlineKeyboardButton("4", callback_data=str(FOUR))]
@@ -176,7 +176,10 @@ def main():
     )
 
     # On noncommand i.e. message -echo the message on telegram TODO for now
-    dp.add_handler(MessageHandler(Filters.text, echo))
+    # dp.add_handler(MessageHandler(Filters.text, echo))
+    # Add ConversationHandler to dispatcher that will be used for handling
+    # updates
+    dp.add_handler(conv_handler)
 
     # Log all errors
     dp.add_error_handler(error)
