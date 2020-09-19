@@ -1,6 +1,7 @@
 import logging
 import os
 import pymongo
+import requests
 from settings import DATABASE_PASSWORD
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, ReplyKeyboardMarkup, User
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackQueryHandler
@@ -14,9 +15,9 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 # Stages
-CHOICE, WHENSLEEP, WHENUP, AMOUNT, ERROR = range(5)
+CHOICE, WHENSLEEP, WHENUP, AMOUNT, ERROR,WHENSTRESSED = range(6)
 # Callback data
-SLEEP, SMOKING = range(2)
+SLEEP, SMOKING,STRESSED = range(3)
 
 
 # Define a few command handlers
@@ -29,7 +30,8 @@ def start(update, context):
     # The keyboard is a list of button rows, where each row is a list
     keyboard = [
         [InlineKeyboardButton("Sleep more", callback_data=str(SLEEP)),
-         InlineKeyboardButton("Reduce Smoking", callback_data=str(SMOKING))]
+         InlineKeyboardButton("Reduce Smoking", callback_data=str(SMOKING)),
+         InlineKeyboardButton("I'm stressed!!!", callback_data=str(STRESSED)) ]
     ]
     # keyboard = [
     #     [KeyboardButton("Sleep more"),
@@ -46,6 +48,41 @@ def start(update, context):
     return CHOICE
     ## Future Reference
     # user = update.message.from_user {Get user - can obtain his/her details through this object}
+
+
+def stressed(update, context):
+    query = update.callback_query
+    query.answer()
+    query.message.reply_text(
+        text=("No problem")
+    )
+    keyboard = [
+        [InlineKeyboardButton("Lo-fi", callback_data=str(0)),
+         InlineKeyboardButton("Pop", callback_data=str(1)),
+         InlineKeyboardButton("Classical", callback_data=str(2)),
+         InlineKeyboardButton("Rock", callback_data=str(3))
+         ]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    query.message.reply_text(
+        text="What music would you like ? ",
+        reply_markup=reply_markup
+    )
+    return WHENSTRESSED
+
+
+def when_stressed(update, context):
+    """When the user went to sleep"""
+    query = update.callback_query
+    query.answer()
+    link = ['https://www.youtube.com/watch?v=tgI6PjEq0O8',
+            'https://www.youtube.com/watch?v=GnivKpaOE24&list=RDCLAK5uy_nmS3YoxSwVVQk9lEQJ0UX4ZCjXsW_psU8&start_radio=1',
+            'https://www.youtube.com/watch?v=nJDQMyHbSko&list=PLEF4FCEA775F67968',
+            'https://www.youtube.com/watch?v=fJ9rUzIMcZQ&list=PLNxOe-buLm6cz8UQ-hyG1nm3RTNBUBv3K']
+    query.message.reply_text(
+        text="Here's some music we think you would like "+ link[int(query.data)]
+    )
+    return CHOICE  # TODO
 
 
 def sleep(update, context):
@@ -80,6 +117,8 @@ def sleep(update, context):
     #     reply_markup=reply_markup
     # )
     return WHENSLEEP
+
+
 
 
 def smoke(update, context):
@@ -165,8 +204,10 @@ def main():
         entry_points=[CommandHandler('start', start)],
         states={
             CHOICE: [CallbackQueryHandler(sleep, pattern='^' + str(SLEEP) + '$'), # Will show differnt durations
-                     CallbackQueryHandler(smoke, pattern='^' + str(smoke) + '$')],
-            WHENSLEEP: [CallbackQueryHandler(when_sleep)]
+                     CallbackQueryHandler(smoke, pattern='^' + str(SMOKING) + '$'),
+                     CallbackQueryHandler(stressed, pattern='^' + str(STRESSED) + '$')],
+            WHENSLEEP: [CallbackQueryHandler(when_sleep)],
+            WHENSTRESSED: [CallbackQueryHandler(when_stressed)]
 
         },
         fallbacks=[CommandHandler('start', start)]
