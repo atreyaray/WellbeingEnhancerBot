@@ -22,13 +22,7 @@ SLEEP, SMOKING = range(2)
 # Define a few command handlers
 def start(update, context):
 
-    user_id = update.callback_query.message.chat.id
-    username = update.callback_query.message.chat.username
-    update_id = update.update_id
-    first_name = update.callback_query.message.chat.first_name
-    last_name = update.callback_query.message.chat.last_name
-    users.insert_one({"first_name": first_name, "last_name": last_name, "tg_id": user_id,
-                      "last_update": update_id, "sleep": 0})
+
     """Send a message when the command /start is issued"""
     # update.message.reply_text("Hello world!\nTODO:Enter captivating statement, false promises, and high hopes.")
 
@@ -57,7 +51,13 @@ def start(update, context):
 def sleep(update, context):
     """Show new choice of buttons"""
     query = update.callback_query
-
+    user_id = update.callback_query.message.chat.id
+    username = update.callback_query.message.chat.username
+    update_id = update.update_id
+    first_name = update.callback_query.message.chat.first_name
+    last_name = update.callback_query.message.chat.last_name
+    users.insert_one({"first_name": first_name, "last_name": last_name, "tg_id": user_id,
+                      "last_update": update_id, "sleep": 0})
     query.answer()
     query.message.reply_text(
         text=("Good choice. Let's track your sleep for a couple weeks, and see the trends.")
