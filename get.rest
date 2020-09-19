@@ -1,4 +1,7 @@
-GET https://api.telegram.org/bot1313840578:AAG-42QA06vXnRAjpkPgHweyVaaUoGpM4NM/getUpdates
+
+
+
+GET https://api.telegram.org/bot1313840578:AAG-42QA06vXnRAjpkPgHweyVaaUoGpM4NM/deleteWebhook
 # Content-Type: application/json
 
 # {
