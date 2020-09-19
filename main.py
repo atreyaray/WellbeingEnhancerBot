@@ -9,9 +9,10 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 # Stages
-FIRST, SECOND = range(2)
+CHOICE, SECOND = range(2)
 # Callback data
-ONE, TWO, THREE, FOUR = range(4)
+SLEEP, SMOKING = range(2)
+
 
 # Define a few command handlers
 def start(update, context):
@@ -20,103 +21,61 @@ def start(update, context):
 
     # The keyboard is a list of button rows, where each row is a list
     keyboard = [
-        [InlineKeyboardButton("1", callback_data=str(ONE)),
-         InlineKeyboardButton("2", callback_data=str(TWO))]
+        [InlineKeyboardButton("Sleep more", callback_data=str(SLEEP)),
+         InlineKeyboardButton("Reduce Smoking", callback_data=str(SMOKING))]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     # Send message with text and appended InlineKeyboard
     update.message.reply_text(
-        "Start handler. Choose a route",
+        "Which habit do you want to work on?",
         reply_markup=reply_markup
     )
-    # TEll ConversationHandler that we're in state 'FIRST' now
-    return FIRST
+    # TEll ConversationHandler that we're in state 'CHOICE' now
+    return CHOICE
     ## Future Reference
     # user = update.message.from_user {Get user - can obtain his/her details through this object}
 
-def start_over(update, context):
-    """Prompt same text & keyboard as `start` does but not as new message"""
-    # Get CallbackQuery from Update
-    query = update.callback_query
-    # CallbackQueries need to be answered, even if no notification to the user is needed
-    # Some clients may have trouble otherwise. See https://core.telegram.org/bots/api#callbackquery
-    query.answer()
-    keyboard = [
-        [InlineKeyboardButton("1", callback_data=str(ONE)),
-         InlineKeyboardButton("2", callback_data=str(TWO))]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    # Instead of sending a new message, edit the message that
-    # originated the CallbackQuery. This gives the feeling of an
-    # interactive menu.
-    query.edit_message_text(
-        text="Start handler, Choose a route",
-        reply_markup=reply_markup
-    )
-    return FIRST
 
-def one(update, context):
+def sleep(update, context):
     """Show new choice of buttons"""
     query = update.callback_query
-    # query.answer()
+    query.answer()
+    query.message.reply_text(
+        text="So you wanna sleep more? That's a perfect choice. Who wants to be Elon Musk eh :/"
+    )
+
     keyboard = [
-        [InlineKeyboardButton("3", callback_data=str(THREE)),
-         InlineKeyboardButton("4", callback_data=str(FOUR))]
+        [InlineKeyboardButton("Morning", callback_data=str(SLEEP)), # TODO Enter sleep code and replace callback data
+         InlineKeyboardButton("Evening", callback_data=str(SMOKING))]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    query.edit_message_text(
-        text="First CallbackQueryHandler, Choose a route",
+    query.message.reply_text(
+        text="How is your sleep?",
         reply_markup=reply_markup
     )
-    return FIRST
+    # query.edit_message_text(
+    #     text="First CallbackQueryHandler, Choose a route",
+    #     reply_markup=reply_markup
+    # )
+    return SECOND
 
-def two(update, context):
+
+def smoke(update, context):
     """Show new choice of buttons"""
     query = update.callback_query
     query.answer()
     keyboard = [
-        [InlineKeyboardButton("1", callback_data=str(ONE)),
-         InlineKeyboardButton("3", callback_data=str(THREE))]
+        [InlineKeyboardButton("1", callback_data=str(SLEEP)),
+         InlineKeyboardButton("3", callback_data=str(SMOKING))]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(
         text="Second CallbackQueryHandler, Choose a route",
         reply_markup=reply_markup
     )
-    return FIRST
+    return CHOICE
 
-def three(update, context):
-    """Show new choice of buttons"""
-    query = update.callback_query
-    query.answer()
-    keyboard = [
-        [InlineKeyboardButton("Yes, let's do it again!", callback_data=str(ONE)),
-         InlineKeyboardButton("Nah, I've had enough ...", callback_data=str(TWO))]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    query.edit_message_text(
-        text="Third CallbackQueryHandler. Do want to start over?",
-        reply_markup=reply_markup
-    )
-    # Transfer to conversation state `SECOND`
-    return SECOND
-
-
-def four(update, context):
-    """Show new choice of buttons"""
-    query = update.callback_query
-    query.answer()
-    keyboard = [
-        [InlineKeyboardButton("2", callback_data=str(TWO)),
-         InlineKeyboardButton("4", callback_data=str(FOUR))]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    query.edit_message_text(
-        text="Fourth CallbackQueryHandler, Choose a route",
-        reply_markup=reply_markup
-    )
-    return FIRST
 
 def end(update, context):
     """Returns `ConversationHandler.END`, which tells the
@@ -127,6 +86,7 @@ def end(update, context):
         text="See you next time!"
     )
     return ConversationHandler.END
+
 
 def help(update, context):
     """Send a message when the command /help is issued"""
@@ -156,7 +116,7 @@ def main():
     # dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("help", help))
 
-    # Setup conversation handler with the states FIRST and SECOND
+    # Setup conversation handler with the states CHOICE and SECOND
     # Use the pattern parameter to pass CallbackQueries with specific
     # data pattern to the corresponding handlers.
     # ^ means "start of line/string"
@@ -165,12 +125,10 @@ def main():
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
         states={
-            FIRST: [CallbackQueryHandler(one, pattern='^' + str(ONE) + '$'),
-                    CallbackQueryHandler(two, pattern='^' + str(TWO) + '$'),
-                    CallbackQueryHandler(three, pattern='^' + str(THREE) + '$'),
-                    CallbackQueryHandler(four, pattern='^' + str(FOUR) + '$')],
-            SECOND: [CallbackQueryHandler(start_over, pattern='^' + str(ONE) + '$'),
-                     CallbackQueryHandler(end, pattern='^' + str(TWO) + '$')]
+            CHOICE: [CallbackQueryHandler(sleep, pattern='^' + str(SLEEP) + '$'),
+                     CallbackQueryHandler(smoke, pattern='^' + str(smoke) + '$')],
+            SECOND: [CallbackQueryHandler(sleep, pattern='^' + str(SLEEP) + '$'),
+                     CallbackQueryHandler(end, pattern='^' + str(smoke) + '$')]
         },
         fallbacks=[CommandHandler('start', start)]
     )
