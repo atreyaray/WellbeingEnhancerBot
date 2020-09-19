@@ -1,15 +1,15 @@
 import logging
 import os
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, ReplyKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackQueryHandler
 
-TG_API_TOKEN = ""
+TG_API_TOKEN = "1313840578:AAG-42QA06vXnRAjpkPgHweyVaaUoGpM4NM"
 # Enable Logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Stages
-CHOICE, SECOND = range(2)
+CHOICE, WHENSLEEP, WHENUP, AMOUNT, ERROR = range(5)
 # Callback data
 SLEEP, SMOKING = range(2)
 
@@ -24,6 +24,10 @@ def start(update, context):
         [InlineKeyboardButton("Sleep more", callback_data=str(SLEEP)),
          InlineKeyboardButton("Reduce Smoking", callback_data=str(SMOKING))]
     ]
+    # keyboard = [
+    #     [KeyboardButton("Sleep more"),
+    #      KeyboardButton("Reduce Smoking")
+    #      ]]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     # Send message with text and appended InlineKeyboard
@@ -42,39 +46,56 @@ def sleep(update, context):
     query = update.callback_query
     query.answer()
     query.message.reply_text(
-        text="So you wanna sleep more? That's a perfect choice. Who wants to be Elon Musk eh :/"
+        text="Good choice. Let's track your sleep for a couple weeks, and see the trends."
     )
 
     keyboard = [
-        [InlineKeyboardButton("Morning", callback_data=str(SLEEP)), # TODO Enter sleep code and replace callback data
-         InlineKeyboardButton("Evening", callback_data=str(SMOKING))]
+        [InlineKeyboardButton("< 5 hours", callback_data=str(0)),
+         InlineKeyboardButton("5-6 hours", callback_data=str(5)),
+         InlineKeyboardButton("7-9 hours", callback_data=str(7)),
+         InlineKeyboardButton("> 9 hours", callback_data=str(9))
+         ]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.message.reply_text(
-        text="How is your sleep?",
+        text="How much did you sleep today?",
         reply_markup=reply_markup
     )
     # query.edit_message_text(
     #     text="First CallbackQueryHandler, Choose a route",
     #     reply_markup=reply_markup
     # )
-    return SECOND
+    return WHENSLEEP
 
 
 def smoke(update, context):
     """Show new choice of buttons"""
     query = update.callback_query
     query.answer()
-    keyboard = [
-        [InlineKeyboardButton("1", callback_data=str(SLEEP)),
-         InlineKeyboardButton("3", callback_data=str(SMOKING))]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    query.edit_message_text(
-        text="Second CallbackQueryHandler, Choose a route",
-        reply_markup=reply_markup
+    # keyboard = [
+    #     [InlineKeyboardButton("1", callback_data=str(SLEEP)),
+    #      InlineKeyboardButton("3", callback_data=str(SMOKING))]
+    # ]
+    # reply_markup = InlineKeyboardMarkup(keyboard)
+    # query.edit_message_text(
+    #     text="Second CallbackQueryHandler, Choose a route",
+    #     reply_markup=reply_markup
+    # )
+    query.message.reply_text(
+        text="No. Let's focus on sleep."
     )
     return CHOICE
+
+
+def when_sleep(update, context):
+    """When the user went to sleep"""
+    query = update.callback_query
+    query.answer()
+    query.message.reply_text(
+        text="Awesome. The ID of your duration is " + query.data
+    )
+
+    return CHOICE # TODO
 
 
 def end(update, context):
@@ -125,10 +146,10 @@ def main():
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
         states={
-            CHOICE: [CallbackQueryHandler(sleep, pattern='^' + str(SLEEP) + '$'),
+            CHOICE: [CallbackQueryHandler(sleep, pattern='^' + str(SLEEP) + '$'), # Will show differnt durations
                      CallbackQueryHandler(smoke, pattern='^' + str(smoke) + '$')],
-            SECOND: [CallbackQueryHandler(sleep, pattern='^' + str(SLEEP) + '$'),
-                     CallbackQueryHandler(end, pattern='^' + str(smoke) + '$')]
+            WHENSLEEP: [CallbackQueryHandler(when_sleep)]
+
         },
         fallbacks=[CommandHandler('start', start)]
     )
