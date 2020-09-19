@@ -1,9 +1,14 @@
 import logging
 import os
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, ReplyKeyboardMarkup
+import pymongo
+from settings import DATABASE_PASSWORD
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, ReplyKeyboardMarkup, User
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackQueryHandler
-
 TG_API_TOKEN = "1313840578:AAG-42QA06vXnRAjpkPgHweyVaaUoGpM4NM"
+complete_uri = f'mongodb+srv://teamstemboys:{DATABASE_PASSWORD}@cluster0.aakcb.mongodb.net/<dbname>?retryWrites=true&w=majority'
+client = pymongo.MongoClient(complete_uri)
+db = client.test
+users = db.customers
 # Enable Logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -16,6 +21,14 @@ SLEEP, SMOKING = range(2)
 
 # Define a few command handlers
 def start(update, context):
+
+    user_id = update.callback_query.message.chat.id
+    username = update.callback_query.message.chat.username
+    update_id = update.update_id
+    first_name = update.callback_query.message.chat.first_name
+    last_name = update.callback_query.message.chat.last_name
+    users.insert_one({"first_name": first_name, "last_name": last_name, "tg_id": user_id,
+                      "last_update": update_id, "sleep": 0})
     """Send a message when the command /start is issued"""
     # update.message.reply_text("Hello world!\nTODO:Enter captivating statement, false promises, and high hopes.")
 
@@ -44,9 +57,10 @@ def start(update, context):
 def sleep(update, context):
     """Show new choice of buttons"""
     query = update.callback_query
+
     query.answer()
     query.message.reply_text(
-        text="Good choice. Let's track your sleep for a couple weeks, and see the trends."
+        text=("Good choice. Let's track your sleep for a couple weeks, and see the trends.")
     )
 
     keyboard = [
@@ -94,6 +108,10 @@ def when_sleep(update, context):
     query.message.reply_text(
         text="Awesome. The ID of your duration is " + query.data
     )
+    user_id = update.callback_query.message.chat.id
+    update_id = update.update_id
+    users.update_one(
+        {"tg_id": user_id}, {"$set": {"last_update": update_id, "sleep": query.data}})
 
     return CHOICE # TODO
 
