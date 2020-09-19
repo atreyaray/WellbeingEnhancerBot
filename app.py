@@ -10,7 +10,12 @@ def main() :
     client = pymongo.MongoClient(db_uri)
     # set up database
     db = client.test
-    pass
+
+    # Adding a new user
+    # user = {"name" : "sergey" , "last_name": "zakuraev"}
+    # users = db.users
+    # users.insert_one(user)
+    # pass
 
 if __name__ == "__main__":
     main()
