@@ -1,3 +1,3 @@
 # WellbeingEnhancerBot
 
-Hack the SDGs
+Hack the SDGs.
