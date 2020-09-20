@@ -41,7 +41,7 @@ def start(update, context):
 
     # Send message with text and appended InlineKeyboard
     update.message.reply_text(
-        "❓❓❓Which habit do you want to work on❓❓❓",
+        "Which habit do you want to work on? ✨🔥",
         reply_markup=reply_markup
     )
     # TEll ConversationHandler that we're in state 'CHOICE' now
