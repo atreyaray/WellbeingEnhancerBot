@@ -82,6 +82,9 @@ def when_stressed(update, context):
     query.message.reply_text(
         text="Here's some music we think you would like "+ link[int(query.data)]
     )
+    query.message.reply_text(
+        text="Press /start to continue to explore other habits!!"
+    )
     return CHOICE  # TODO
 
 
@@ -93,8 +96,9 @@ def sleep(update, context):
     update_id = update.update_id
     first_name = update.callback_query.message.chat.first_name
     last_name = update.callback_query.message.chat.last_name
-    users.insert_one({"first_name": first_name, "last_name": last_name, "tg_id": user_id,
-                      "last_update": update_id, "sleep": 0})
+    if users.find_one({"tg_id" : user_id}) == None :
+        users.insert_one({"first_name": first_name, "last_name": last_name, "tg_id": user_id,
+                            "last_update": update_id, "sleep": 0})
     query.answer()
     query.message.reply_text(
         text=("Good choice. Let's track your sleep for a couple weeks, and see the trends. 📊")
@@ -129,7 +133,10 @@ def when_sleep(update, context):
             'Sleeping is good but sleeping too much may make you groggy. Consider trading one hour of sleep for a morning workout ? 💪']
     
     query.message.reply_text(
-        text=" " + msg[int(query.data)]
+        text=" " + msg[int(query.data)] 
+    )
+    query.message.reply_text(
+        text="Press /start to continue to explore other habits!!"
     )
     user_id = update.callback_query.message.chat.id
     update_id = update.update_id
@@ -184,6 +191,9 @@ def when_study(update, context):
     
     query.message.reply_text(
         text= "💜You have spent" + msg[int(query.data)]
+    )
+    query.message.reply_text(
+        text="Press /start to continue to explore other habits!!"
     )
     user_id = update.callback_query.message.chat.id
     update_id = update.update_id
