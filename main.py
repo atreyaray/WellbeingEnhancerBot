@@ -54,7 +54,7 @@ def stressed(update, context):
     query = update.callback_query
     query.answer()
     query.message.reply_text(
-        text=("No problem❗️❗️❗️")
+        text=("No problem ♥️")
     )
     keyboard = [
         [InlineKeyboardButton("Lo-fi 🎧", callback_data=str(0)),
