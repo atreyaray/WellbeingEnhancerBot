@@ -31,7 +31,7 @@ def start(update, context):
     keyboard = [
         [InlineKeyboardButton("Sleeping 😴", callback_data=str(SLEEP)),
          InlineKeyboardButton("Studying 🧠", callback_data=str(STUDYING)),
-         InlineKeyboardButton("I'm stressed!!! 😪", callback_data=str(STRESSED)) ]
+         InlineKeyboardButton("I'm stressed 😪", callback_data=str(STRESSED)) ]
     ]
     # keyboard = [
     #     [KeyboardButton("Sleep more"),
