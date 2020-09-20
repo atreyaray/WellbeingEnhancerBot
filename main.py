@@ -15,9 +15,9 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 # Stages
-CHOICE, WHENSLEEP, WHENUP, AMOUNT, ERROR,WHENSTRESSED = range(6)
+CHOICE, WHENSLEEP,WHENSTRESSED, WHENSTUDY = range(4)
 # Callback data
-SLEEP, SMOKING,STRESSED = range(3)
+SLEEP, STUDYING, STRESSED = range(3)
 
 
 # Define a few command handlers
@@ -29,9 +29,9 @@ def start(update, context):
 
     # The keyboard is a list of button rows, where each row is a list
     keyboard = [
-        [InlineKeyboardButton("Sleep more", callback_data=str(SLEEP)),
-         InlineKeyboardButton("Reduce Smoking", callback_data=str(SMOKING)),
-         InlineKeyboardButton("I'm stressed!!!", callback_data=str(STRESSED)) ]
+        [InlineKeyboardButton("Sleeping 😴", callback_data=str(SLEEP)),
+         InlineKeyboardButton("Studying 🧠", callback_data=str(STUDYING)),
+         InlineKeyboardButton("I'm stressed!!! 😪", callback_data=str(STRESSED)) ]
     ]
     # keyboard = [
     #     [KeyboardButton("Sleep more"),
@@ -41,7 +41,7 @@ def start(update, context):
 
     # Send message with text and appended InlineKeyboard
     update.message.reply_text(
-        "Which habit do you want to work on?",
+        "❓❓❓Which habit do you want to work on❓❓❓",
         reply_markup=reply_markup
     )
     # TEll ConversationHandler that we're in state 'CHOICE' now
@@ -54,18 +54,18 @@ def stressed(update, context):
     query = update.callback_query
     query.answer()
     query.message.reply_text(
-        text=("No problem")
+        text=("No problem❗️❗️❗️")
     )
     keyboard = [
-        [InlineKeyboardButton("Lo-fi", callback_data=str(0)),
-         InlineKeyboardButton("Pop", callback_data=str(1)),
-         InlineKeyboardButton("Classical", callback_data=str(2)),
-         InlineKeyboardButton("Rock", callback_data=str(3))
+        [InlineKeyboardButton("Lo-fi 🎧", callback_data=str(0)),
+         InlineKeyboardButton("Pop 🎤", callback_data=str(1)),
+         InlineKeyboardButton("Classical 🎻", callback_data=str(2)),
+         InlineKeyboardButton("Rock 🎸", callback_data=str(3))
          ]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.message.reply_text(
-        text="What music would you like ? ",
+        text="What music would you like? 🎼",
         reply_markup=reply_markup
     )
     return WHENSTRESSED
@@ -97,19 +97,19 @@ def sleep(update, context):
                       "last_update": update_id, "sleep": 0})
     query.answer()
     query.message.reply_text(
-        text=("Good choice. Let's track your sleep for a couple weeks, and see the trends.")
+        text=("Good choice. Let's track your sleep for a couple weeks, and see the trends. 📊")
     )
 
     keyboard = [
-        [InlineKeyboardButton("< 5 hours", callback_data=str(0)),
-         InlineKeyboardButton("5-6 hours", callback_data=str(5)),
-         InlineKeyboardButton("7-9 hours", callback_data=str(7)),
-         InlineKeyboardButton("> 9 hours", callback_data=str(9))
+        [InlineKeyboardButton("< 5 hours 😱", callback_data=str(0)),
+         InlineKeyboardButton("5-6 hours 😌", callback_data=str(1)),
+         InlineKeyboardButton("7-9 hours 😃", callback_data=str(2)),
+         InlineKeyboardButton("> 9 hours 🤪", callback_data=str(3))
          ]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.message.reply_text(
-        text="How much did you sleep today?",
+        text="How much did you sleep today? 💤",
         reply_markup=reply_markup
     )
     # query.edit_message_text(
@@ -118,34 +118,18 @@ def sleep(update, context):
     # )
     return WHENSLEEP
 
-
-
-
-def smoke(update, context):
-    """Show new choice of buttons"""
-    query = update.callback_query
-    query.answer()
-    # keyboard = [
-    #     [InlineKeyboardButton("1", callback_data=str(SLEEP)),
-    #      InlineKeyboardButton("3", callback_data=str(SMOKING))]
-    # ]
-    # reply_markup = InlineKeyboardMarkup(keyboard)
-    # query.edit_message_text(
-    #     text="Second CallbackQueryHandler, Choose a route",
-    #     reply_markup=reply_markup
-    # )
-    query.message.reply_text(
-        text="No. Let's focus on sleep."
-    )
-    return CHOICE
-
-
 def when_sleep(update, context):
     """When the user went to sleep"""
+
     query = update.callback_query
     query.answer()
+    msg = ['less than 5 hours to sleep. You can spend some more time to sleep!💜',
+            "5-6 hours to sleep. That's good!💜" ,
+            '7-9 hours to sleep, which is the ideal amount of time one should spend for this activity!💜',
+            'more than 10 hours to sleep. Has your alarm been broken?💜']
+    
     query.message.reply_text(
-        text="Awesome. The ID of your duration is " + query.data
+        text="💜Awesome! You have spent " + msg[int(query.data)]
     )
     user_id = update.callback_query.message.chat.id
     update_id = update.update_id
@@ -154,6 +138,59 @@ def when_sleep(update, context):
 
     return CHOICE # TODO
 
+def study(update, context):
+    
+
+    query = update.callback_query
+    user_id = update.callback_query.message.chat.id
+    username = update.callback_query.message.chat.username
+    update_id = update.update_id
+    first_name = update.callback_query.message.chat.first_name
+    last_name = update.callback_query.message.chat.last_name
+    users.insert_one({"first_name": first_name, "last_name": last_name, "tg_id": user_id,
+                      "last_update": update_id, "sleep": 0}) 
+    query.answer()
+    query.message.reply_text(
+        text=("Hey! Let's keep track your study timing to see how hard you work! 📚")
+    )
+
+    keyboard = [
+        [InlineKeyboardButton("< 1 hour 😩", callback_data=str(0)),
+         InlineKeyboardButton("2-4 hours 😁", callback_data=str(1)),
+         InlineKeyboardButton("5-7 hours 🤓", callback_data=str(2)),
+         InlineKeyboardButton("> 7 hours 🤯", callback_data=str(3))
+         ]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    query.message.reply_text(
+        text="How much time did you spend for studying today? 🎯",
+        reply_markup=reply_markup
+    )
+    # query.edit_message_text(
+    #     text="First CallbackQueryHandler, Choose a route",
+    #     reply_markup=reply_markup
+    # )
+    return WHENSTUDY
+
+def when_study(update, context):
+    """When the user went to sleep"""
+
+    query = update.callback_query
+    query.answer()
+    msg = [' less than 1 hour to study. It is recommended that one should spend at least 2 hours perday to study.💜',
+            " 2-4 hours to study. This is a very ideal amount for studying! Keep up the good work!💜" ,
+            " 5-7 hours to study. Wow! You're working very hard! You're gonna ace this period!💜",
+            " more than 7 hours to study! Don't forget to spend time for yourself💜"]
+    
+    query.message.reply_text(
+        text= "💜You have spent" + msg[int(query.data)]
+    )
+    user_id = update.callback_query.message.chat.id
+    update_id = update.update_id
+    users.update_one(
+        {"tg_id": user_id}, {"$set": {"last_update": update_id, "sleep": query.data}})
+
+    return CHOICE # TODO
 
 def end(update, context):
     """Returns `ConversationHandler.END`, which tells the
@@ -204,8 +241,9 @@ def main():
         entry_points=[CommandHandler('start', start)],
         states={
             CHOICE: [CallbackQueryHandler(sleep, pattern='^' + str(SLEEP) + '$'), # Will show differnt durations
-                     CallbackQueryHandler(smoke, pattern='^' + str(SMOKING) + '$'),
+                     CallbackQueryHandler(study, pattern='^' + str(STUDYING) + '$'),
                      CallbackQueryHandler(stressed, pattern='^' + str(STRESSED) + '$')],
+            WHENSTUDY: [CallbackQueryHandler(when_study)],
             WHENSLEEP: [CallbackQueryHandler(when_sleep)],
             WHENSTRESSED: [CallbackQueryHandler(when_stressed)]
 
