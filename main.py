@@ -123,13 +123,13 @@ def when_sleep(update, context):
 
     query = update.callback_query
     query.answer()
-    msg = ['less than 5 hours to sleep. You can spend some more time to sleep!💜',
-            "5-6 hours to sleep. That's good!💜" ,
-            '7-9 hours to sleep, which is the ideal amount of time one should spend for this activity!💜',
-            'more than 10 hours to sleep. Has your alarm been broken?💜']
+    msg = ['Hm.. less than 5 hours to sleep, please try sleeping more. Remember, sleeping more can help you be more active and healthy so you can achieve your dreams ♥',
+            "Ok great! 5-6 hours to sleep. Not bad, but you could certainly do better! 🥺" ,
+            '💜 Awesome! You have spent 7-9 hours to sleep, which is the ideal amount of time one should spend for this activity! ⚡️',
+            'Sleeping is good but sleeping too much may make you groggy. Consider trading one hour of sleep for a morning workout ? 💪']
     
     query.message.reply_text(
-        text="💜Awesome! You have spent " + msg[int(query.data)]
+        text=" " + msg[int(query.data)]
     )
     user_id = update.callback_query.message.chat.id
     update_id = update.update_id
